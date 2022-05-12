@@ -6,12 +6,26 @@
 import requests
 
 class YTRequestsError(Exception):
+    """
+    If the request is not successful
+    """
+
     pass
 
 class YTArgumentError(Exception):
+    """
+    If the argument is not valid
+    """
     pass
 
 class YTRequests:
+    """
+    YouTube Data V3 API
+
+    Raises:
+        YTArgumentError: If the argument is not valid
+        YTRequestsError: If the request is not successful
+    """
 
     base_url = 'https://www.googleapis.com/youtube/v3'
     unofficial_api_key = 'AIzaSyAa8yy0GdcGPHdtD083HiGGx_S0vMPScDM'
@@ -20,13 +34,23 @@ class YTRequests:
     }
 
     def __init__(self, api_key = None, unofficial = False):
+        """
+        initialize YTRequests
+
+        Args:
+            api_key (str, optional): YouTube Data API V3 API Key. Defaults to None.
+            unofficial (bool, optional): use UnOfficial mode. Defaults to False.
+
+        Raises:
+            YTArgumentError: If the argument is not valid
+        """
         if unofficial:
             self.base_headers["x-origin"] = "https://explorer.apis.google.com"
             self.api_key = self.unofficial_api_key
         elif api_key:
             self.api_key = api_key
         else:
-            raise Exception("No API key provided")
+            raise YTArgumentError("No API key provided")
     
     # def get_video_info(self, videoId):
     #     params = {
@@ -34,6 +58,18 @@ class YTRequests:
     #     }
 
     def get_comments(self, videoId):
+        """
+        Get comments of a video
+
+        Args:
+            videoId (str): videoId
+
+        Raises:
+            YTRequestsError: If the request is not successful
+
+        Returns:
+            list: comments
+        """
         params = {
             "part": "id,snippet,replies",
             "maxResults": 50,
@@ -63,6 +99,19 @@ class YTRequests:
         return items
 
     def search_videos(self, word, max_results=50):
+        """
+        Search videos
+
+        Args:
+            word (str): search word
+            max_results (int, optional): The maxResults parameter specifies the maximum number of items that should be returned in the result set. Acceptable values are 0 to 50, inclusive. Defaults to 50.
+
+        Raises:
+            YTRequestsError: If the request is not successful
+
+        Returns:
+            list: videos
+        """
         params = {
             "part": "id,snippet",
             "maxResults": max_results,
@@ -92,6 +141,20 @@ class YTRequests:
         return items
 
     def get_video_info(self, _id, parts=None):
+        """
+        Get video info
+
+        Args:
+            _id (str or list): videoId or list of videoId
+            parts (str or list, optional): _description_. Defaults to id,snippet,contentDetails and more.
+
+        Raises:
+            YTArgumentError: If the argument is not valid
+            YTRequestsError: If the request is not successful
+
+        Returns:
+            list: video info
+        """
         if not parts:
             parts = [
                 "id",
