@@ -27,9 +27,9 @@ class YTRequests:
         YTRequestsError: If the request is not successful
     """
 
-    base_url = 'https://www.googleapis.com/youtube/v3'
-    unofficial_api_key = 'AIzaSyAa8yy0GdcGPHdtD083HiGGx_S0vMPScDM'
-    base_headers = {
+    __base_url = 'https://www.googleapis.com/youtube/v3'
+    __unofficial_api_key = 'AIzaSyAa8yy0GdcGPHdtD083HiGGx_S0vMPScDM'
+    __base_headers = {
         "content-type": "application/json"
     }
 
@@ -45,10 +45,10 @@ class YTRequests:
             YTArgumentError: If the argument is not valid
         """
         if unofficial:
-            self.base_headers["x-origin"] = "https://explorer.apis.google.com"
-            self.api_key = self.unofficial_api_key
+            self.__base_headers["x-origin"] = "https://explorer.apis.google.com"
+            self.__api_key = self.__unofficial_api_key
         elif api_key:
-            self.api_key = api_key
+            self.__api_key = api_key
         else:
             raise YTArgumentError("No API key provided")
     
@@ -74,7 +74,7 @@ class YTRequests:
             "part": "id,snippet,replies",
             "maxResults": 50,
             "videoId": videoId,
-            "key": self.api_key
+            "key": self.__api_key
         }
 
         nextToken = None
@@ -83,7 +83,7 @@ class YTRequests:
         while True:
             if nextToken:
                 params["pageToken"] = nextToken
-            r = requests.get(f"{self.base_url}/commentThreads", params=params, headers=self.base_headers)
+            r = requests.get(f"{self.__base_url}/commentThreads", params=params, headers=self.__base_headers, timeout=10)
             if r.status_code != 200:
                 if len(items) > 0:
                     return items
@@ -98,13 +98,13 @@ class YTRequests:
 
         return items
 
-    def search_videos(self, word, max_results=50):
+    def search_videos(self, word, max_results=None):
         """
         Search videos
 
         Args:
             word (str): search word
-            max_results (int, optional): The maxResults parameter specifies the maximum number of items that should be returned in the result set. Acceptable values are 0 to 50, inclusive. Defaults to 50.
+            max_results (int, optional): The maxResults parameter specifies the maximum number of items that should be returned in the result set. Defaults to None.
 
         Raises:
             YTRequestsError: If the request is not successful
@@ -114,9 +114,9 @@ class YTRequests:
         """
         params = {
             "part": "id,snippet",
-            "maxResults": max_results,
+            "maxResults": 50,
             "q": word,
-            "key": self.api_key
+            "key": self.__api_key
         }
 
         nextToken = None
@@ -125,7 +125,7 @@ class YTRequests:
         while True:
             if nextToken:
                 params["pageToken"] = nextToken
-            r = requests.get(f"{self.base_url}/search", params=params, headers=self.base_headers)
+            r = requests.get(f"{self.__base_url}/search", params=params, headers=self.__base_headers, timeout=10)
             if r.status_code != 200:
                 if len(items) > 0:
                     return items
@@ -134,6 +134,8 @@ class YTRequests:
 
             data = r.json()
             items.extend(data["items"])
+            if max_results and len(items) >= max_results:
+                return items[0:max_results]
             nextToken = data.get("nextPageToken")
             if not nextToken:
                 break
@@ -182,9 +184,9 @@ class YTRequests:
         params = {
             "part": parts,
             "id": _id,
-            "key": self.api_key
+            "key": self.__api_key
         }
-        r = requests.get(f"{self.base_url}/videos", params=params, headers=self.base_headers)
+        r = requests.get(f"{self.__base_url}/videos", params=params, headers=self.__base_headers, timeout=10)
         if r.status_code != 200:
             raise YTRequestsError(r.status_code, r.text)
 
