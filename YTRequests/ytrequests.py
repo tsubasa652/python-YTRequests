@@ -99,12 +99,13 @@ class YTRequests:
 
         return items
 
-    def search_videos(self, word, max_results=None):
+    def search_videos(self, word, _type=["video","channel","playlist"], max_results=None):
         """
         Search videos
 
         Args:
             word (str): search word
+            _type (list or str, optional): search type. Defaults to ["video","channel","playlist"].
             max_results (int, optional): The maxResults parameter specifies the maximum number of items that should be returned in the result set. Defaults to None.
 
         Raises:
@@ -113,10 +114,14 @@ class YTRequests:
         Returns:
             list: videos
         """
+        if type(_type) == list:
+            _type = ",".join(_type)
+
         params = {
             "part": "id,snippet",
             "maxResults": 50,
             "q": word,
+            "type": _type,
             "key": self.__api_key
         }
 
