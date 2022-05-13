@@ -33,7 +33,7 @@ class YTRequests:
         "content-type": "application/json"
     }
 
-    def __init__(self, api_key = None, unofficial = False):
+    def __init__(self, api_key = None, unofficial = False, proxies=None):
         """
         initialize YTRequests
 
@@ -44,6 +44,7 @@ class YTRequests:
         Raises:
             YTArgumentError: If the argument is not valid
         """
+        self.proxies = proxies
         if unofficial:
             self.__base_headers["x-origin"] = "https://explorer.apis.google.com"
             self.__api_key = self.__unofficial_api_key
@@ -83,7 +84,7 @@ class YTRequests:
         while True:
             if nextToken:
                 params["pageToken"] = nextToken
-            r = requests.get(f"{self.__base_url}/commentThreads", params=params, headers=self.__base_headers, timeout=10)
+            r = requests.get(f"{self.__base_url}/commentThreads", params=params, headers=self.__base_headers, timeout=10, proxies=self.proxies)
             if r.status_code != 200:
                 if len(items) > 0:
                     return items
@@ -125,7 +126,7 @@ class YTRequests:
         while True:
             if nextToken:
                 params["pageToken"] = nextToken
-            r = requests.get(f"{self.__base_url}/search", params=params, headers=self.__base_headers, timeout=10)
+            r = requests.get(f"{self.__base_url}/search", params=params, headers=self.__base_headers, timeout=10, proxies=self.proxies)
             if r.status_code != 200:
                 if len(items) > 0:
                     return items
@@ -186,7 +187,7 @@ class YTRequests:
             "id": _id,
             "key": self.__api_key
         }
-        r = requests.get(f"{self.__base_url}/videos", params=params, headers=self.__base_headers, timeout=10)
+        r = requests.get(f"{self.__base_url}/videos", params=params, headers=self.__base_headers, timeout=10, proxies=self.proxies)
         if r.status_code != 200:
             raise YTRequestsError(r.status_code, r.text)
 
