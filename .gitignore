@@ -1,3 +1,4 @@
+build/
 dist/
 YTRequests.egg-info/
 __pycache__/
